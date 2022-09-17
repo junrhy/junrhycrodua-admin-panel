@@ -1,142 +1,56 @@
-<style type="text/css">
-body{
-    font-family: 'Open Sans', sans-serif;
-    background:#3498db;
-    margin: 0 auto 0 auto;  
-    width:100%; 
-    text-align:center;
-    margin: 20px 0px 20px 0px;   
-}
+<x-guest-layout>
+    <x-auth-card>
+        <x-slot name="logo">
+            <a href="/">
+                <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
+            </a>
+        </x-slot>
 
-p{
-    font-size:12px;
-    text-decoration: none;
-    color:#ffffff;
-}
+        <!-- Session Status -->
+        <x-auth-session-status class="mb-4" :status="session('status')" />
 
-h1{
-    font-size:1.5em;
-    color:#525252;
-}
+        <!-- Validation Errors -->
+        <x-auth-validation-errors class="mb-4" :errors="$errors" />
 
-.box{
-    background:white;
-    width:300px;
-    border-radius:6px;
-    margin: 0 auto 0 auto;
-    padding:0px 0px 70px 0px;
-    border: #2980b9 4px solid; 
-}
+        <form method="POST" action="{{ route('login') }}">
+            @csrf
 
-.email{
-    background:#ecf0f1;
-    border: #ccc 1px solid;
-    border-bottom: #ccc 2px solid;
-    padding: 8px;
-    width:250px;
-    color:#AAAAAA;
-    margin-top:10px;
-    font-size:1em;
-    border-radius:4px;
-}
+            <!-- Email Address -->
+            <div>
+                <x-input-label for="email" :value="__('Email')" />
 
-.password{
-    border-radius:4px;
-    background:#ecf0f1;
-    border: #ccc 1px solid;
-    padding: 8px;
-    width:250px;
-    font-size:1em;
-}
+                <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
+            </div>
 
-.btn{
-    background:#2ecc71;
-    width:125px;
-    padding-top:5px;
-    padding-bottom:5px;
-    color:white;
-    border-radius:4px;
-    border: #27ae60 1px solid;
+            <!-- Password -->
+            <div class="mt-4">
+                <x-input-label for="password" :value="__('Password')" />
 
-    margin-top:20px;
-    margin-bottom:20px;
-    float:left;
-    margin-left:16px;
-    font-weight:800;
-    font-size:0.8em;
-}
+                <x-text-input id="password" class="block mt-1 w-full"
+                                type="password"
+                                name="password"
+                                required autocomplete="current-password" />
+            </div>
 
-.btn:hover{
-    background:#2CC06B; 
-}
+            <!-- Remember Me -->
+            <div class="block mt-4">
+                <label for="remember_me" class="inline-flex items-center">
+                    <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" name="remember">
+                    <span class="ml-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
+                </label>
+            </div>
 
-#btn2{
-    float:left;
-    background:#3498db;
-    width:125px;  padding-top:5px;
-    padding-bottom:5px;
-    color:white;
-    border-radius:4px;
-    border: #2980b9 1px solid;
+            <div class="flex items-center justify-end mt-4">
+                @if (Route::has('password.request'))
+                    <a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('password.request') }}">
+                        {{ __('Forgot your password?') }}
+                    </a>
+                @endif
 
-    margin-top:20px;
-    margin-bottom:20px;
-    margin-left:10px;
-    font-weight:800;
-    font-size:0.8em;
-}
-
-#btn2:hover{ 
-    background:#3594D2; 
-}
-</style>
-
-<script type="text/javascript">
-    function field_focus(field, email)
-    {
-        if(field.value == email)
-        {
-          field.value = '';
-        }
-    }
-
-    function field_blur(field, email)
-    {
-        if(field.value == '')
-        {
-          field.value = email;
-        }
-    }
-
-    //Fade in dashboard box
-    $(document).ready(function(){
-        $('.box').hide().fadeIn(1000);
-    });
-
-    //Stop click event
-    $('a').click(function(event){
-        event.preventDefault(); 
-    });
-</script>
-
-<link href='https://fonts.googleapis.com/css?family=Open+Sans:700,600' rel='stylesheet' type='text/css'>
-
-<form method="post" action="index.html">
-<div class="box">
-<h1>Sign In</h1>
-
-<input type="email" name="email" value="email" onFocus="field_focus(this, 'email');" onblur="field_blur(this, 'email');" class="email" />
-  
-<input type="password" name="email" value="email" onFocus="field_focus(this, 'email');" onblur="field_blur(this, 'email');" class="email" />
-  
-<a href="#"><div class="btn">Sign In</div></a> <!-- End Btn -->
-
-<a href="#"><div id="btn2">Sign Up</div></a> <!-- End Btn2 -->
-  
-</div> <!-- End Box -->
-  
-</form>
-
-<p>Forgot your password? <u style="color:#f1c40f;">Click Here!</u></p>
-  
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js" type="text/javascript"></script>
+                <x-primary-button class="ml-3">
+                    {{ __('Log in') }}
+                </x-primary-button>
+            </div>
+        </form>
+    </x-auth-card>
+</x-guest-layout>
