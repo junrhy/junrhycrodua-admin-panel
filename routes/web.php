@@ -2,6 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EndpointController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -20,3 +23,6 @@ Route::get('/', function () {
 Route::get('/login', function () {
     return view('auth.login');
 });
+ 
+Route::get('/dashboard', [DashboardController::class, 'index']);
+Route::get('/endpoints', [EndpointController::class, 'index']);
