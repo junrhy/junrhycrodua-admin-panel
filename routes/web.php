@@ -24,5 +24,9 @@ Route::get('/dashboard', function () {
 })->middleware(['auth'])->name('dashboard');
 
 Route::resource('endpoints', EndpointController::class)->middleware(['auth']);
+Route::get('tables/create/{id}', [EndpointController::class, 'createTableRecord'])->middleware(['auth']);
+Route::post('tables', [EndpointController::class, 'downloadTableRecord'])->middleware(['auth']);
+Route::delete('tables/{id}', [EndpointController::class, 'removeTableRecord'])->middleware(['auth']);
+Route::post('tables/download-record', [EndpointController::class, 'downloadTableRecord'])->middleware(['auth']);
 
 require __DIR__.'/auth.php';
