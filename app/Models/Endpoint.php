@@ -9,14 +9,10 @@ class Endpoint extends Model
 {
     protected $fillable = [
         'name',
-        'api_source',
         'endpoint_url',
-        'auth',
+        'headers',
+        'data',
         'is_active'
-    ];
-
-    protected $casts = [
-        'auth' => 'json',
     ];
 
     use HasFactory;

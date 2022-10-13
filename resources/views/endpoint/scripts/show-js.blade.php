@@ -1,80 +1,43 @@
 $(document).ready(function () {
-  const email = "{{ $allAuth['email'] }}";
-  const password = "{{ $allAuth['password'] }}";
-  const brand_id = "{{ $allAuth['brand_id'] }}";
+  let endpoint = "{{ $endpoint->endpoint_url }}";
+  let type = 'GET';
 
-  let bearerToken = "";
+  $("#btn-submit").click(function(){
+    type = $("#action").val();
+    endpoint = $("#text-field-endpoint").val();
 
-  $(function(){
-    login();
+    index();
   });
 
-  function login(){
-    $.ajax({
-      type: 'POST',   
-      url: "https://api.junrhycrodua.com/api/login",
-      headers: {
-          'Accept': 'application/json'
-      },
-      data: {
-      	  'email': email,
-      	  'password': password,
-      	  'brand_id': brand_id
-      },
-      success: function (response) {
-        bearerToken = response.token;
-        index();
-      },
-      error: function (response) {
-          console.log(response);
-      }
-    });
-  }
-
-  function logout(){
-    $.ajax({
-      type: 'POST',   
-      url: "https://api.junrhycrodua.com/api/logout",
-      headers: {
-          'Authorization': 'Bearer ' + bearerToken,
-          'Accept': 'application/json'
-      },
-      success: function (response) {
-          // console.log(response);
-      },
-      error: function (response) {
-          console.log(response);
-      }
-    });
-  }
-  
   function index(){
     $.ajax({
-      type: 'GET',   
-      url: "{{ $endpoint->endpoint_url }}",
-      headers: {
-          'Authorization': 'Bearer ' + bearerToken,
-          'Accept': 'application/json'
-      },
+      type: type,   
+      url: endpoint,
+      headers: JSON.parse(replaceAll("{{ $headers }}", 'double-qoute', '"')),
+      data: JSON.parse(replaceAll("{{ $data }}", 'double-qoute', '"')),
       success: function (response) {
-        responseToTable(response);
-        logout();
+        if (response && response.data.length > 0) {
+          responseToTable(response, '#indexTable');
+        } else {
+          console.log(response);
+        }
       },
       error: function (response) {
-          console.log(response);
+        console.log(response);
       }
     });
   }
 
-  function responseToTable(response) {
+  function responseToTable(response, tableElement = '') {
+    $(tableElement+' thead > tr').empty();
+    $(tableElement+' tbody').empty();
+
     var headers = Object.keys(response.data[0]);
         
     var loop = 0;
     var th = '';
     while (loop < headers.length) {
       switch (headers[loop]) {
-        case 'id':
-          break;
         case 'created_at':
           th = th + '<th data-field="'+headers[loop]+'">Created</th>';
           break;
@@ -87,9 +50,9 @@ $(document).ready(function () {
           th = th + '<th data-field="'+headers[loop]+'">'+camelCase(field)+'</th>';
       }
       loop = loop + 1;
-    }
+    }    
 
-    $('#indexTable th:first').after(th);
+    $(tableElement+' thead > tr').append(th);
 
     $.each(response.data, function(index, item) {
       var objKeys = Object.keys(item);
@@ -101,6 +64,7 @@ $(document).ready(function () {
         switch (objKeys[loop]) {
           case 'id':
             var id = objValues[loop];
+            td = td + '<td>'+objValues[loop]+'</td>';
             break;
           case 'created_at':
             date = new Date(objValues[loop]);
@@ -116,13 +80,8 @@ $(document).ready(function () {
         loop = loop + 1;
       }
       
-      $('#indexTable tbody').append(
-        '<tr id="'+id+'">\
-          <td><input type="checkbox" name="endpoints" value="'+id+'"></td>'+td+'</tr>');
-
-      var edit = '<button class="btn btn-sm btn-warning">Edit</button>';
-
-      $('td:last').after('<td>'+edit+'</td>');
+      $(tableElement+' tbody').append(
+        '<tr id="'+id+'">'+td+'</tr>');
     });
 
     $("#indexTable").DataTable(); 
@@ -143,5 +102,53 @@ $(document).ready(function () {
     return str.replace(/(?:^|\s)\w/g, function(match) {
         return match.toUpperCase();
     });
+  }
+
+  function getAllUrlParams(url) {
+    var queryString = url ? url.split('?')[1] : window.location.search.slice(1);
+    var obj = {};
+
+    if (queryString) {
+      queryString = queryString.split('#')[0];
+
+      var arr = queryString.split('&');
+
+      for (var i = 0; i < arr.length; i++) {
+        var a = arr[i].split('=');
+        var paramName = a[0];
+        var paramValue = typeof (a[1]) === 'undefined' ? true : a[1];
+
+        paramName = paramName.toLowerCase();
+        if (typeof paramValue === 'string') paramValue = paramValue.toLowerCase();
+
+        if (paramName.match(/\[(\d+)?\]$/)) {
+
+          var key = paramName.replace(/\[(\d+)?\]/, '');
+          if (!obj[key]) obj[key] = [];
+
+          if (paramName.match(/\[\d+\]$/)) {
+            var index = /\[(\d+)\]/.exec(paramName)[1];
+            obj[key][index] = paramValue;
+          } else {
+            obj[key].push(paramValue);
+          }
+        } else {
+          if (!obj[paramName]) {
+            obj[paramName] = paramValue;
+          } else if (obj[paramName] && typeof obj[paramName] === 'string'){
+            obj[paramName] = [obj[paramName]];
+            obj[paramName].push(paramValue);
+          } else {
+            obj[paramName].push(paramValue);
+          }
+        }
+      }
+    }
+
+    return obj;
+  }
+
+  function replaceAll(str, find, replace) {
+    return str.replace(new RegExp(find, 'g'), replace);
   }
 });

@@ -17,30 +17,7 @@
         <li class="nav-item has-submenu">
             <a class="nav-link list-group-item list-group-item-action bg-light" href="#"> Manage  </a>
             <ul class="submenu collapse bg-light">
-                 <li><a class="nav-link list-group-item-action" href="/api-sources">Api Sources </a></li>
                 <li><a class="nav-link list-group-item-action" href="/endpoints">Endpoints </a></li>
-            </ul>
-        </li>
-        <li class="nav-item has-submenu">
-            <a class="nav-link list-group-item list-group-item-action bg-light" href="#"> Reports  </a>
-            <ul class="submenu collapse bg-light">
-                <li>
-                    <span class="nav-link"> JC API  </span>
-                    <ul class="submenu collapse bg-light">
-                         <li><a class="nav-link list-group-item-action" href="/api-sources">Reports Name </a></li>
-                    </ul>
-                </li>
-            </ul>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link list-group-item list-group-item-action bg-light" href="#"> Emails  </a>
-            <ul class="submenu collapse bg-light">
-                <li>
-                    <span class="nav-link"> JC API  </span>
-                    <ul class="submenu collapse bg-light">
-                         <li><a class="nav-link list-group-item-action" href="/api-sources">Sample Emails </a></li>
-                    </ul>
-                </li>
             </ul>
         </li>
     </ul>

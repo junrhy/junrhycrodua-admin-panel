@@ -16,11 +16,9 @@ return new class extends Migration
         Schema::create('endpoints', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('api_source');
             $table->string('endpoint_url');
-            $table->longText('auth');
-            $table->longText('headers');
-            $table->longText('body');
+            $table->longText('headers')->nullable();
+            $table->longText('data')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

@@ -14,8 +14,7 @@
 
 						<div class="dropdown-menu dropdown-menu-right">
 							<a class="dropdown-item" href="endpoints/create">Register</a>
-							<a class="dropdown-item" id="activate-endpoints">Activate</a>
-							<a class="dropdown-item" id="deactivate-endpoints">Deactivate</a>
+							<a class="dropdown-item" id="duplicate-endpoints">Duplicate</a>
 							<a class="dropdown-item" id="remove-endpoints">Remove</a>
 						</div>
 					</div>
@@ -28,19 +27,19 @@
 						<tr>
 							<th></th>
 							<th>Name</th>
-							<th>API Source</th>
 							<th>Endpoint url</th>
-							<th>Status</th>
+							<th></th>
 						</tr>
 					</thead>
 					<tbody>
 						@foreach($endpoints as $endpoint)
 						<tr>
 							<td><input type="checkbox" name="endpoints" value="{{ $endpoint->id }}"></td>
-							<td><a href="/endpoints/{{ $endpoint->id }}">{{ $endpoint->name }}</a></td>
-							<td><a href="#">{{ $endpoint->api_source }}</a></td>
+							<td><a href="/endpoints/{{ $endpoint->id }}/edit">{{ $endpoint->name }}</a></td>
 							<td>{{ $endpoint->endpoint_url }}</td>
-							<td><span class="badge {{ $endpoint->is_active ? 'bg-success text-white' : 'bg-warning' }}">{{ $endpoint->is_active ? 'Active' : 'Inactive' }}</span></td>
+							<td>
+								<a href="/endpoints/{{ $endpoint->id }}" class="btn btn-sm btn-warning">View Actions</a>
+							</td>
 						</tr>
 						@endforeach
 					</tbody>

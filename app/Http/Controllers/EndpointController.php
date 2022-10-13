@@ -32,6 +32,19 @@ class EndpointController extends Controller
     }
 
     /**
+     * Edit form resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+       $endpoint = Endpoint::find($id);
+
+        return view('endpoint.edit')
+                ->with('endpoint', $endpoint);
+    }
+
+    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -43,9 +56,7 @@ class EndpointController extends Controller
 
         $this->validate($request, [
             'name' => 'required|unique:endpoints',
-            'api_source' => 'required',
-            'endpoint_url' => 'required|regex:'.$url_regex,
-            'auth' => 'required'
+            'endpoint_url' => 'required|regex:'.$url_regex
         ]);
 
         Endpoint::create($request->all());
@@ -63,16 +74,13 @@ class EndpointController extends Controller
     {
         $endpoint = Endpoint::find($id);
 
-        $auth = explode(",", str_replace("\r\n", ",", $endpoint->auth));
-        $allAuth = [];
-        foreach ($auth as $auth_line) {
-            $line_auth = explode(":", $auth_line);
-            $allAuth[$line_auth[0]] = $line_auth[1];
-        }
+        $headers = str_replace('"', "double-qoute", $endpoint->headers);
+        $data = str_replace('"', "double-qoute", $endpoint->data);
 
         return view('endpoint.show')
                 ->with('endpoint', $endpoint)
-                ->with('allAuth', $allAuth);
+                ->with('headers', !empty($headers) ? $headers : '{}')
+                ->with('data', !empty($data) ? $data : '{}');
     }
 
     /**
@@ -84,8 +92,17 @@ class EndpointController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $ids = explode(",",$id);
-        Endpoint::whereIn('id', $ids)->update(['is_active' => $request->is_active]);
+        $url_regex = '/^(http(s)?:\/\/)([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/';
+
+        $this->validate($request, [
+            'name' => 'required|unique:endpoints',
+            'endpoint_url' => 'required|regex:'.$url_regex
+        ]);
+        
+        $endpoint = Endpoint::find($id);
+        $endpoint->fill($request->all())->save();
+
+        return back()->with('success', 'Endpoint successfully updated.');
     }
 
     /**
@@ -98,36 +115,5 @@ class EndpointController extends Controller
     {
         $ids = explode(",",$id);
         Endpoint::whereIn('id', $ids)->delete();
-    }
-
-    public function createTableRecord($id)
-    {
-        $endpoint = Endpoint::find($id);
-
-        $auth = explode(",", str_replace("\r\n", ",", $endpoint->auth));
-        $allAuth = [];
-        foreach ($auth as $auth_line) {
-            $line_auth = explode(":", $auth_line);
-            $allAuth[$line_auth[0]] = $line_auth[1];
-        }
-
-        return view('endpoint.table.create')
-                ->with('endpoint', $endpoint)
-                ->with('allAuth', $allAuth);
-    }
-
-    public function storeTableRecord(Request $request)
-    {
-        // code...
-    }
-
-    public function removeTableRecord($id)
-    {
-        // code...
-    }
-
-    public function downloadTableRecord(Request $request)
-    {
-        // code...
     }
 }
