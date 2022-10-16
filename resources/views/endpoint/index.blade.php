@@ -19,7 +19,7 @@
 						</div>
 					</div>
 				</div>
-				<h5 class="card-title mb-0">Endpoints</h5>
+				<h5 class="card-title mb-0">Registered Endpoints</h5>
 			</div>
 			<div class="card-body">
 				<table class="table table-striped" style="width:100%">

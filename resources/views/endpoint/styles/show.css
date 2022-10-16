@@ -1,0 +1,7 @@
+thead input {
+  width: 100%;
+}
+
+#toggleColumn, #dateRange {
+  display: inline-block;
+}
