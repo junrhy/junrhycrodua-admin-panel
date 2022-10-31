@@ -2,8 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\EndpointController;
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -23,7 +21,9 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth'])->name('dashboard');
 
-Route::resource('endpoints', EndpointController::class)->middleware(['auth']);
+Route::resource('endpoints', App\Http\Controllers\EndpointController::class)->middleware(['auth']);
+Route::resource('staffs', App\Http\Controllers\StaffController::class)->middleware(['auth']);
+
 Route::get('tables/create/{id}', [EndpointController::class, 'createTableRecord'])->middleware(['auth']);
 Route::post('tables', [EndpointController::class, 'downloadTableRecord'])->middleware(['auth']);
 Route::delete('tables/{id}', [EndpointController::class, 'removeTableRecord'])->middleware(['auth']);

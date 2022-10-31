@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 use App\Models\Endpoint;
+use Illuminate\Http\Request;
 
 class EndpointController extends Controller
 {
