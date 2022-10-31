@@ -1,6 +1,6 @@
 <x-app>
 <script type="text/javascript">@include('endpoint.scripts.show-js')</script>
-<style type="text/css">@include('endpoint.styles.show')</style
+<style type="text/css">@include('endpoint.styles.show')</style>
 <h1 class="h3 mt-3 mb-3">Actions</h1>
 <div class="row">
 	<div class="col-md-1 mb-3">
@@ -23,9 +23,8 @@
                 <h5 class="card-title mb-0">Response Data</h5>
             </div>
             <div class="card-body">
-                <div id="dateRange"></div>
-                <div id="toggleColumn"></div>
-                <br><br>
+                <div id="dateRange" class="row"></div>
+                <div id="toggleColumn" class="row mt-2"></div>
                 <table class="table table-striped" id="indexTable">
                     <thead>
                         <tr></tr>

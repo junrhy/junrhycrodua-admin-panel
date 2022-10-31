@@ -1,23 +1,31 @@
 $(document).ready(function () {
   let endpoint = "{{ $endpoint->endpoint_url }}";
   let type = 'GET';
+  let dataTableInitialize = false;
 
   $("#btn-submit").click(function(){
     type = $("#action").val();
     endpoint = $("#text-field-endpoint").val();
 
-    index();
+    index('#indexTable');
   });
 
-  function index(){
+  function index(tableElement = ''){
     $.ajax({
       type: type,   
       url: endpoint,
       headers: JSON.parse(replaceAll("{{ $headers }}", 'double-qoute', '"')),
       data: JSON.parse(replaceAll("{{ $data }}", 'double-qoute', '"')),
       success: function (response) {
-        if (response && response.data.length > 0) {
-          responseToTable(response, '#indexTable');
+        if (response.success) {
+          if (dataTableInitialize) {
+            $(tableElement).dataTable().fnDestroy();
+            dataTableInitialize = false;
+          }
+
+          initializeTableHeader(response['data'],tableElement);
+          responseToTable(response['data'], tableElement);
+          initializeDataTable(tableElement);
         } else {
           console.log(response);
         }
@@ -29,12 +37,75 @@ $(document).ready(function () {
   }
 
   function responseToTable(response, tableElement = '') {
-    $(tableElement+' thead').empty();
     $(tableElement+' tbody').empty();
+
+    if (Array.isArray(response)) {
+      $.each(response, function(index, item) {
+        var objKeys = Object.keys(item);
+        var objValues = Object.values(item);
+
+        var loop = 0;
+        var td = '';
+        while (loop < objKeys.length) {
+          switch (objKeys[loop]) {
+            case 'id':
+              var id = objValues[loop];
+              td = td + '<td>'+objValues[loop]+'</td>';
+              break;
+            case 'created_at':
+              date = new Date(objValues[loop]);
+              td = td + '<td>'+ date.toDateString() + ' ' + formatAMPM(date) + '</td>';
+              break;
+            case 'updated_at':
+              date = new Date(objValues[loop]);
+              td = td + '<td>'+ date.toDateString() + ' ' + formatAMPM(date) + '</td>';
+              break;
+            default:
+              td = td + '<td>'+objValues[loop]+'</td>';
+          }
+          loop = loop + 1;
+        }
+        
+        $(tableElement+' tbody').append(
+          '<tr id="'+id+'">'+td+'</tr>');
+      }); 
+    } else {
+      var headers = Object.keys(Array.isArray(response) ? response[0] : response);
+      var objValues = Object.values(response);
+
+      var loop = 0;
+      var td = '';
+      while (loop < headers.length) {
+        switch (headers[loop]) {
+          case 'id':
+            var id = objValues[loop];
+            td = td + '<td>'+objValues[loop]+'</td>';
+            break;
+          case 'created_at':
+            date = new Date(objValues[loop]);
+            td = td + '<td>'+ date.toDateString() + ' ' + formatAMPM(date) + '</td>';
+            break;
+          case 'updated_at':
+            date = new Date(objValues[loop]);
+            td = td + '<td>'+ date.toDateString() + ' ' + formatAMPM(date) + '</td>';
+            break;
+          default:
+            td = td + '<td>'+objValues[loop]+'</td>';
+        }
+        loop = loop + 1;
+      }
+      
+      $(tableElement+' tbody').append(
+        '<tr id="'+id+'">'+td+'</tr>');
+    }
+  }
+
+  function initializeTableHeader(response, tableElement = '') {
+    $(tableElement+' thead').empty();
     $('#toggleColumn').empty();
     $('#dateRange').empty();
 
-    var headers = Object.keys(response.data[0]);
+    var headers = Object.keys(Array.isArray(response) ? response[0] : response);
         
     var loop = 0;
     var th = '';
@@ -58,47 +129,20 @@ $(document).ready(function () {
       loop = loop + 1;
     }    
 
-    $('#toggleColumn').append('<b>Toggle Columns</b>: '+columns);
+    $('#toggleColumn').append('<div class="col-md-12"><label>Toggle Columns</label>: '+columns+'</div>');
     $(tableElement+' thead').append('<tr>'+th+'</tr>');
     $(tableElement+' thead').append('<tr class="filters">'+th+'</tr>');
 
-    $.each(response.data, function(index, item) {
-      var objKeys = Object.keys(item);
-      var objValues = Object.values(item);
+    $('#dateRange').append('<div class="col-md-2"><label class="label">Date Started</label> <input type="text" id="min" name="min" class="form-control"></div> \
+      <div class="col-md-2"><label class="label">Date Ended</label> <input type="text" id="max" name="max" class="form-control"></div></div>');
+  }
 
-      var loop = 0;
-      var td = '';
-      while (loop < objKeys.length) {
-        switch (objKeys[loop]) {
-          case 'id':
-            var id = objValues[loop];
-            td = td + '<td>'+objValues[loop]+'</td>';
-            break;
-          case 'created_at':
-            date = new Date(objValues[loop]);
-            td = td + '<td>'+ date.toDateString() + ' ' + formatAMPM(date) + '</td>';
-            break;
-          case 'updated_at':
-            date = new Date(objValues[loop]);
-            td = td + '<td>'+ date.toDateString() + ' ' + formatAMPM(date) + '</td>';
-            break;
-          default:
-            td = td + '<td>'+objValues[loop]+'</td>';
-        }
-        loop = loop + 1;
-      }
-      
-      $(tableElement+' tbody').append(
-        '<tr id="'+id+'">'+td+'</tr>');
-    });    
-
+  function initializeDataTable(tableElement = '') {
     $.fn.columnCount = function() {
       return $('th', $(this).find('thead tr:first')).length;
     };
 
-    $('#indexTable').dataTable().fnDestroy();
-
-    var table = $("#indexTable").DataTable({
+    var table = $(tableElement).DataTable({
       dom: 'Bfltip',
       buttons: [
           'copyHtml5',
@@ -136,7 +180,7 @@ $(document).ready(function () {
       order: [[0, 'desc']]
     });
 
-    var columnCount = $("#indexTable").columnCount();
+    var columnCount = $(tableElement).columnCount();
 
     table.column(0).visible(false);
     table.column(columnCount - 1).visible(false);
@@ -169,8 +213,6 @@ $(document).ready(function () {
         }
     );
 
-    $('#dateRange').append('<b>Date Started</b> <input type="text" id="min" name="min"> <b>Date Ended</b> <input type="text" id="max" name="max"><br>');
-
     // Create date inputs
     minDate = new DateTime($('#min'), {
         format: 'MMMM Do YYYY'
@@ -182,6 +224,8 @@ $(document).ready(function () {
     $('#min, #max').on('change', function () {
         table.draw();
     });
+
+    dataTableInitialize = true;
   }
 
   function formatAMPM(date) {

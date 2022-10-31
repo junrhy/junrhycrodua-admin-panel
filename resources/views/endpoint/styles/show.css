@@ -2,6 +2,7 @@ thead input {
   width: 100%;
 }
 
-#toggleColumn, #dateRange {
-  display: inline-block;
+.dataTables_length {
+  margin-top: 5px;
+  margin-left: 10px;
 }
