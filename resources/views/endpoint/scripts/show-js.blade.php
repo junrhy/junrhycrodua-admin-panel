@@ -10,6 +10,15 @@ $(document).ready(function () {
     index('#indexTable');
   });
 
+  $("#filters-toggle").click(function(){
+    var attr = $('#section-filters').attr('hidden');
+    if (typeof attr == 'undefined') {
+      $('#section-filters').attr('hidden', true);
+    } else {
+      $('#section-filters').removeAttr('hidden');
+    }
+  });
+
   function index(tableElement = ''){
     $.ajax({
       type: type,   
@@ -23,20 +32,34 @@ $(document).ready(function () {
             dataTableInitialize = false;
           }
 
-          initializeTableHeader(response['data'],tableElement);
-          responseToTable(response['data'], tableElement);
-          initializeDataTable(tableElement);
+          if (response['data'].length > 0) {
+            convertDataToTableHeader(response['data'],tableElement);
+            convertDataToTableRows(response['data'], tableElement);
+            initializeDataTable(tableElement);
+          }         
         } else {
           console.log(response);
         }
+
+        // hide error message
+        var attr = $('#error-msg').attr('hidden');
+        if (typeof attr == 'undefined') {
+          $('#error-msg').attr('hidden', true);
+        }
+
+        if (response.success && response['data'].length == 0) {
+          $('#error-msg').html('Response Data is empty.');
+          $('#error-msg').removeAttr('hidden');
+        } 
       },
       error: function (response) {
-        console.log(response);
+        $('#error-msg').html(response.responseJSON.message);
+        $('#error-msg').removeAttr('hidden');
       }
     });
   }
 
-  function responseToTable(response, tableElement = '') {
+  function convertDataToTableRows(response, tableElement = '') {
     $(tableElement+' tbody').empty();
 
     if (Array.isArray(response)) {
@@ -100,7 +123,7 @@ $(document).ready(function () {
     }
   }
 
-  function initializeTableHeader(response, tableElement = '') {
+  function convertDataToTableHeader(response, tableElement = '') {
     $(tableElement+' thead').empty();
     $('#toggleColumn').empty();
     $('#dateRange').empty();
@@ -129,12 +152,17 @@ $(document).ready(function () {
       loop = loop + 1;
     }    
 
-    $('#toggleColumn').append('<div class="col-md-12"><label>Toggle Columns</label>: '+columns+'</div>');
     $(tableElement+' thead').append('<tr>'+th+'</tr>');
     $(tableElement+' thead').append('<tr class="filters">'+th+'</tr>');
 
-    $('#dateRange').append('<div class="col-md-2"><label class="label">Date Started</label> <input type="text" id="min" name="min" class="form-control"></div> \
-      <div class="col-md-2"><label class="label">Date Ended</label> <input type="text" id="max" name="max" class="form-control"></div></div>');
+    $("#filters").empty();
+
+    $('#filters').append('<div class="col-md-1"><label class="label">Date Started</label></div> \
+      <div class="col-md-2"><input type="text" id="min" name="min" class="form-control"></div> \
+      <div class="col-md-1"><label class="label">Date Ended</label></div> \
+      <div class="col-md-2"><input type="text" id="max" name="max" class="form-control"></div></div>');
+
+    $('#filters').append('<div class="col-md-6 text-right"><label>Toggle Columns</label>: '+columns+'</div>');
   }
 
   function initializeDataTable(tableElement = '') {
